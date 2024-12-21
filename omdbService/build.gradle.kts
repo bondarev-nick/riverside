@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.retrofit"
+    namespace = "com.example.omdbservice"
     compileSdk = Integer.parseInt(libs.versions.compileSdk.get())
 
     defaultConfig {
@@ -41,15 +41,12 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-    // retrofit
-    api(libs.retrofit)
-    implementation(libs.retrofit.kotlinx.serialization)
-    api(libs.kotlinx.serialization.json)
-    implementation(libs.okhttp)
-
     // hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
+
+    // local
+    implementation(project(":retrofit"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

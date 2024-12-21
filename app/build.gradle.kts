@@ -66,8 +66,11 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
 
+    // coil
+    implementation(libs.coil)
+
     // local
-    implementation(project(":retrofit"))
+    implementation(project(":omdbService"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
