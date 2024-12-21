@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.example.riverside"
-    compileSdk = 35
+    compileSdk = Integer.parseInt(libs.versions.compileSdk.get())
 
     defaultConfig {
         applicationId = "com.example.riverside"
         minSdk = 28
-        targetSdk = 35
+        targetSdk = Integer.parseInt(libs.versions.targetSdk.get())
         versionCode = 1
         versionName = "1.0"
 
@@ -61,8 +61,14 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
+
+    // local
+    implementation(project(":retrofit"))
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
