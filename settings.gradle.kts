@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "riverside"
 include(":app")
- 
+include(":retrofit")
