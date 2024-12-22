@@ -1,4 +1,4 @@
-package com.example.riverside.repository
+package com.example.riverside.repository.model
 
 data class MovieItem(
     val title: String,

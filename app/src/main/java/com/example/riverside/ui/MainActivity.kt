@@ -1,24 +1,23 @@
-package com.example.riverside
+package com.example.riverside.ui
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Box
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.riverside.search.ui.MovieListScreen
+import com.example.riverside.ui.search.MovieListScreen
 import com.example.riverside.ui.theme.RiversideTheme
 import com.example.riverside.viewModel.MoviesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val viewModel: MoviesViewModel by viewModels()
 
@@ -28,18 +27,21 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val movies by viewModel.searchResult.collectAsStateWithLifecycle()
+            val selectedMovie by viewModel.selectedCardIndex.collectAsStateWithLifecycle()
             RiversideTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(Modifier.padding(innerPadding)) {
-                        MovieListScreen(
-                            movieSearchResult = movies,
-                            hasNextP = viewModel.hasNextPage(),
-                            hasPrevP = viewModel.hasPrevPage(),
-                            onPrevPage = { viewModel.prev() },
-                            onNextPage = { viewModel.next() },
-                            onSearch = { viewModel.search(it) }
-                        )
-                    }
+                    MovieListScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        movieSearchResult = movies,
+                        hasNextP = viewModel.hasNextPage(),
+                        hasPrevP = viewModel.hasPrevPage(),
+                        selectedItem = selectedMovie,
+                        onPrevPage = { viewModel.prev() },
+                        onNextPage = { viewModel.next() },
+                        onSearch = { viewModel.search(it) },
+                        onMovieClick = { index -> viewModel.selectCard(index) },
+                        onBottomSheetDismiss = { viewModel.deselectCard() }
+                    )
                 }
             }
         }

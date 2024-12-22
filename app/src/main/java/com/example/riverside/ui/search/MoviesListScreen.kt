@@ -1,4 +1,4 @@
-package com.example.riverside.search.ui
+package com.example.riverside.ui.search
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -39,53 +39,74 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.example.riverside.repository.MovieItem
-import com.example.riverside.repository.MoviesSearchResult
+import com.example.riverside.repository.model.MovieItem
+import com.example.riverside.repository.model.MoviesSearchResult
+import com.example.riverside.ui.details.DetailsBottomSheet
 
 @Composable
 fun MovieListScreen(
+    modifier: Modifier = Modifier,
     movieSearchResult: MoviesSearchResult,
+    selectedItem: Int? = null,
     hasNextP: Boolean,
     hasPrevP: Boolean,
     onNextPage: () -> Unit,
     onPrevPage: () -> Unit,
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
+    onMovieClick: (Int) -> Unit,
+    onBottomSheetDismiss: () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        SearchField { onSearch(it) }
+    Box {
         Box(Modifier.fillMaxSize()) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
                 contentPadding = PaddingValues(
-                    bottom = 60.dp
+                    bottom = 90.dp,
+                    top = 124.dp
                 )
             ) {
-                items(movieSearchResult.movieItems) { movie ->
-                    MovieItem(movie = movie)
+                itemsIndexed(movieSearchResult.movieItems) { index, movie ->
+                    val itemModifier = if (selectedItem == index) {
+                        Modifier.graphicsLayer(scaleX = 1.03f, scaleY = 1.03f)
+                    } else {
+                        Modifier
+                    }
+                    MovieItem(
+                        modifier = itemModifier,
+                        movie = movie,
+                        onCardClick = { onMovieClick(index) })
                 }
             }
+        }
 
-            NumberPager(
-                modifier = Modifier.align(Alignment.BottomCenter),
-                currentPage = movieSearchResult.currentPage,
-                hasNextPage = hasNextP,
-                hasPrevPage = hasPrevP,
-                onPrev = onPrevPage,
-                onNext = onNextPage
-            )
+        NumberPager(
+            modifier = modifier
+                .align(Alignment.BottomCenter),
+            currentPage = movieSearchResult.currentPage,
+            hasNextPage = hasNextP,
+            hasPrevPage = hasPrevP,
+            onPrev = onPrevPage,
+            onNext = onNextPage
+        )
+    }
+    SearchField(modifier = modifier) { onSearch(it) }
+    if (selectedItem != null) {
+        DetailsBottomSheet {
+            onBottomSheetDismiss()
         }
     }
 }
 
 @Composable
-fun SearchField(onSearch: (String) -> Unit) {
+fun SearchField(modifier: Modifier, onSearch: (String) -> Unit) {
     var query: String by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -93,7 +114,7 @@ fun SearchField(onSearch: (String) -> Unit) {
         shape = RoundedCornerShape(50),
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(8.dp)
     ) {
@@ -202,13 +223,18 @@ fun NumberPager(
 }
 
 @Composable
-fun MovieItem(movie: MovieItem) {
+fun MovieItem(
+    modifier: Modifier,
+    movie: MovieItem,
+    onCardClick: () -> Unit
+) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        onClick = onCardClick
     ) {
         Row(
             modifier = Modifier
@@ -255,7 +281,7 @@ fun MovieItem(movie: MovieItem) {
 @Composable
 fun PreviewMovieListScreen() {
     MovieListScreen(
-        MoviesSearchResult(
+        movieSearchResult = MoviesSearchResult(
             movieItems = listOf(
                 MovieItem(
                     title = "Rus Gelin",
@@ -280,7 +306,9 @@ fun PreviewMovieListScreen() {
         hasPrevP = true,
         onNextPage = {},
         onPrevPage = {},
-        onSearch = {}
+        onSearch = {},
+        onMovieClick = {},
+        onBottomSheetDismiss = {}
     )
 }
 
@@ -288,7 +316,7 @@ fun PreviewMovieListScreen() {
 @Composable
 fun PreviewMovieListScreenSinglePage() {
     MovieListScreen(
-        MoviesSearchResult(
+        movieSearchResult = MoviesSearchResult(
             movieItems = listOf(
                 MovieItem(
                     title = "Rus Gelin",
@@ -313,6 +341,44 @@ fun PreviewMovieListScreenSinglePage() {
         hasPrevP = false,
         onNextPage = {},
         onPrevPage = {},
-        onSearch = {}
+        onSearch = {},
+        onMovieClick = {},
+        onBottomSheetDismiss = {}
+    )
+}
+
+@Preview
+@Composable
+fun PreviewMovieListScreenSelectedItem() {
+    MovieListScreen(
+        movieSearchResult = MoviesSearchResult(
+            movieItems = listOf(
+                MovieItem(
+                    title = "Rus Gelin",
+                    year = "2003",
+                    imdbID = "tt0352791",
+                    type = "movie",
+                    posterUrl = "https://m.media-amazon.com/images/M/MV5BZTVkNmM0ZDUtZDQ4ZS00ZmM0LWJkODUtNzdlYWI1ZDc4NWExXkEyXkFqcGc@._V1_SX300.jpg"
+                ),
+                MovieItem(
+                    title = "Ayastefanos'taki Rus Abidesinin Yikilisi",
+                    year = "1914",
+                    imdbID = "tt0289081",
+                    type = "movie",
+                    posterUrl = "https://m.media-amazon.com/images/M/MV5BNDE2NGQ5MTMtY2FlOS00ZmVjLTllM2ItM2RlNDA2NzZhNTQ4XkEyXkFqcGdeQXVyMjExNjgyMTc@._V1_SX300.jpg"
+                )
+            ),
+            totalItems = 1,
+            currentPage = 1,
+            error = null
+        ),
+        hasNextP = false,
+        hasPrevP = false,
+        selectedItem = 1,
+        onNextPage = {},
+        onPrevPage = {},
+        onSearch = {},
+        onMovieClick = {},
+        onBottomSheetDismiss = {}
     )
 }
