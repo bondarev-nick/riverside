@@ -1,5 +1,6 @@
-package com.example.retrofit
+package com.example.retrofit.interceptor
 
+import com.example.retrofit.ApiKey
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject

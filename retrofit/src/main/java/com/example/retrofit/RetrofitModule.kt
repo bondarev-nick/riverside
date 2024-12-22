@@ -1,5 +1,7 @@
 package com.example.retrofit
 
+import com.example.retrofit.interceptor.ErrorHandlingInterceptor
+import com.example.retrofit.interceptor.QueryParameterInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -31,9 +33,13 @@ object RetrofitModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(interceptor: QueryParameterInterceptor): OkHttpClient {
+    fun provideOkHttpClient(
+        queryParameterInterceptor: QueryParameterInterceptor,
+        errorHandlingInterceptor: ErrorHandlingInterceptor
+    ): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(interceptor)
+            .addInterceptor(queryParameterInterceptor)
+            .addInterceptor(errorHandlingInterceptor)
             .build()
     }
 
